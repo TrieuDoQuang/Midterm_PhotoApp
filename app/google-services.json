@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "191969788325",
+    "firebase_url": "https://fbphotoapp-91f5f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "fbphotoapp-91f5f",
+    "storage_bucket": "fbphotoapp-91f5f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191969788325:android:ab7961aa366e81d25da84c",
+        "android_client_info": {
+          "package_name": "com.example.photoapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqshw-zC_gulWBjBtFO-3UUyUUTg74WD8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
