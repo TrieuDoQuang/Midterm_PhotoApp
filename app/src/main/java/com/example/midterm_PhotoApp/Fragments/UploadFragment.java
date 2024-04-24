@@ -1,25 +1,31 @@
-package com.example.midterm_PhotoApp;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.midterm_PhotoApp.Fragments;
 
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TabHost;
 import android.widget.Toast;
 
+import com.example.midterm_PhotoApp.Models.DataClass;
+import com.example.midterm_PhotoApp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,7 +36,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-public class UploadActivity extends AppCompatActivity {
+public class UploadFragment extends Fragment {
 
     private FloatingActionButton uploadButton;
     private ImageView uploadImage;
@@ -39,15 +45,15 @@ public class UploadActivity extends AppCompatActivity {
     private Uri imageUri;
     final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
     final private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+    
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_upload);
-        
-        uploadButton = findViewById(R.id.uploadButton);
-        uploadCaption = findViewById(R.id.uploadCaption);
-        uploadImage = findViewById(R.id.uploadImage);
-        progressBar = findViewById(R.id.progressBar);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_upload,container,false);
+        uploadButton = view.findViewById(R.id.uploadButton);
+        uploadCaption = view.findViewById(R.id.uploadCaption);
+        uploadImage = view.findViewById(R.id.uploadImage);
+        progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
@@ -60,10 +66,10 @@ public class UploadActivity extends AppCompatActivity {
                             imageUri = data.getData();
                             uploadImage.setImageURI(imageUri);
                         } else {
-                            Toast.makeText(UploadActivity.this, "No Image Selected", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "No Image Selected", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
-    }
         );
 
         uploadImage.setOnClickListener(new View.OnClickListener() {
@@ -82,10 +88,12 @@ public class UploadActivity extends AppCompatActivity {
                 if(imageUri != null) {
                     uploadToFirebase(imageUri);
                 } else {
-                    Toast.makeText(UploadActivity.this, "Please select image", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Please select image", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        return view;
     }
 
     private void uploadToFirebase(Uri uri) {
@@ -100,7 +108,7 @@ public class UploadActivity extends AppCompatActivity {
                     public void onSuccess(Uri uri) {
                         DataClass dataClass = new DataClass(uri.toString(), caption);
                         String key = databaseReference.push().getKey();
-                        databaseReference.child(key).setValue(dataClass).addOnSuccessListener(UploadActivity.this,new OnSuccessListener<Void>(){
+                        databaseReference.child(key).setValue(dataClass).addOnSuccessListener((Activity) getContext(),new OnSuccessListener<Void>(){
                             @Override
                             public void onSuccess(Void aVoid){
                                 // SUCCESS
@@ -108,10 +116,12 @@ public class UploadActivity extends AppCompatActivity {
                                 // Log the details
                                 Log.d("FirebaseData","user data uploaded successfully");
                                 // Make a toast
-                                Toast.makeText(UploadActivity.this, "user data uploaded successfully", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "user data uploaded successfully", Toast.LENGTH_LONG).show();
+                                uploadCaption.setText("");
+                                uploadImage.setImageDrawable(getResources().getDrawable(R.drawable.uploadicon));
                             }
 
-                        }).addOnFailureListener(UploadActivity.this,new OnFailureListener(){
+                        }).addOnFailureListener((Activity) getContext(),new OnFailureListener(){
                             @Override
                             public void onFailure(@NonNull Exception e){
                                 // FAILURE
@@ -119,13 +129,10 @@ public class UploadActivity extends AppCompatActivity {
                                 // Log the details
                                 Log.d("FirebaseData","user data upload failed");
                                 // Make a toast
-                                Toast.makeText(UploadActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                             }});
                         progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(UploadActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(UploadActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                        Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -138,13 +145,13 @@ public class UploadActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 progressBar.setVisibility(View.INVISIBLE);
-                Toast.makeText(UploadActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private String getFileExtension(Uri fileUri) {
-        ContentResolver contentResolver = getContentResolver();
+        ContentResolver contentResolver = getActivity().getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(contentResolver.getType(fileUri));
     }

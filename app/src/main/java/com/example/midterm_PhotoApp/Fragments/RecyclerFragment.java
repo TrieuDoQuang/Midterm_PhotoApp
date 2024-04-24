@@ -1,15 +1,21 @@
-package com.example.midterm_PhotoApp;
+package com.example.midterm_PhotoApp.Fragments;
+
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
-import android.content.Intent;
-import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.midterm_PhotoApp.Adapters.MyAdapter;
+import com.example.midterm_PhotoApp.Models.DataClass;
+import com.example.midterm_PhotoApp.R;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,30 +24,34 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
-
-    FloatingActionButton fab;
+public class RecyclerFragment extends Fragment {
     RecyclerView recyclerView;
     ArrayList<DataClass> dataList;
     MyAdapter adapter;
+
+    TabLayout tabLayout;
+    ViewPager viewPager;
     final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
 
+    public RecyclerFragment() {
+        // Required empty public constructor
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_recycler,container,false);
+        recyclerView = view.findViewById(R.id.recyclerView);
 
-        fab = findViewById(R.id.fab);
-        recyclerView = findViewById(R.id.recyclerView);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dataList = new ArrayList<>();
-        adapter = new MyAdapter(this, dataList);
+        adapter = new MyAdapter(getContext(), dataList);
         recyclerView.setAdapter(adapter);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                dataList.clear();
                 for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
                     DataClass dataClass = dataSnapshot.getValue(DataClass.class);
                     dataList.add(dataClass);
@@ -54,14 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, UploadActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        return view;
     }
 }

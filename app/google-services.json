@@ -1,14 +1,90 @@
 {
   "project_info": {
-    "project_number": "191969788325",
-    "firebase_url": "https://fbphotoapp-91f5f-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "fbphotoapp-91f5f",
-    "storage_bucket": "fbphotoapp-91f5f.appspot.com"
+    "project_number": "277524376418",
+    "firebase_url": "https://photoapp-ddd6c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "photoapp-ddd6c",
+    "storage_bucket": "photoapp-ddd6c.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:191969788325:android:ab7961aa366e81d25da84c",
+        "mobilesdk_app_id": "1:277524376418:android:4818160ac54a5b22f01a3b",
+        "android_client_info": {
+          "package_name": "com.DuongDucKhai.PhotoApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUbgLoBUgjVgVTt3mW9z9u6EJcD4Ecgp4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277524376418:android:a510ba296566494df01a3b",
+        "android_client_info": {
+          "package_name": "com.example.groupProject_downloadManager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUbgLoBUgjVgVTt3mW9z9u6EJcD4Ecgp4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277524376418:android:daa211802ae25b2af01a3b",
+        "android_client_info": {
+          "package_name": "com.example.midterm_PhotoApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUbgLoBUgjVgVTt3mW9z9u6EJcD4Ecgp4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277524376418:android:22bbad37c9230c70f01a3b",
+        "android_client_info": {
+          "package_name": "com.example.myphotoapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUbgLoBUgjVgVTt3mW9z9u6EJcD4Ecgp4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277524376418:android:5e8ee82a355d0fd8f01a3b",
         "android_client_info": {
           "package_name": "com.example.photoapp"
         }
@@ -16,7 +92,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBqshw-zC_gulWBjBtFO-3UUyUUTg74WD8"
+          "current_key": "AIzaSyBUbgLoBUgjVgVTt3mW9z9u6EJcD4Ecgp4"
         }
       ],
       "services": {

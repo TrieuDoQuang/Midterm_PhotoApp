@@ -1,4 +1,4 @@
-package com.example.midterm_PhotoApp;
+package com.example.midterm_PhotoApp.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.example.midterm_PhotoApp.Models.DataClass;
+import com.example.midterm_PhotoApp.R;
+
 import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
