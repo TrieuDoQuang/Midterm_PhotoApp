@@ -13,10 +13,10 @@ import com.example.midterm_PhotoApp.R;
 import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
     private ArrayList<DataClass> dataList;
     private Context context;
-    public MyAdapter(Context context, ArrayList<DataClass> dataList) {
+    public RecyclerAdapter(Context context, ArrayList<DataClass> dataList) {
         this.context = context;
         this.dataList = dataList;
     }

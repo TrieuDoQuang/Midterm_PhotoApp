@@ -1,20 +1,14 @@
 package com.example.midterm_PhotoApp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
 
-import com.example.midterm_PhotoApp.Adapters.MyAdapter;
 import com.example.midterm_PhotoApp.Adapters.TabAdapter;
 import com.example.midterm_PhotoApp.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {

@@ -5,7 +5,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.midterm_PhotoApp.Fragments.GridFragment;
 import com.example.midterm_PhotoApp.Fragments.RecyclerFragment;
+import com.example.midterm_PhotoApp.Fragments.StaggerFragment;
 import com.example.midterm_PhotoApp.Fragments.UploadFragment;
 
 public class TabAdapter extends FragmentStateAdapter {
@@ -20,8 +22,8 @@ public class TabAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch(position){
             case 0: return new RecyclerFragment();
-            case 1: return new RecyclerFragment();
-            case 2: return new RecyclerFragment();
+            case 1: return new GridFragment();
+            case 2: return new StaggerFragment();
             case 3: return new UploadFragment();
             default: return new RecyclerFragment();
         }
