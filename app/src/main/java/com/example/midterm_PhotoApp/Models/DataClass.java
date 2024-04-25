@@ -1,4 +1,4 @@
-package com.example.midterm_PhotoApp;
+package com.example.midterm_PhotoApp.Models;
 
 public class DataClass {
     private String imageURL, caption;
