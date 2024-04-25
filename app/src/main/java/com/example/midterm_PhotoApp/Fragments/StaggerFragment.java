@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,25 +28,32 @@ public class StaggerFragment extends Fragment {
     RecyclerView recyclerView;
     ArrayList<DataClass> dataList;
     StaggerAdapter adapter;
-    final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+
+    private DatabaseReference databaseReference;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_stagger,container,false);
+        Log.d("STAGGER VIEW", "CONNECTING TO FIREBASE");
+        databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+        Log.d("STAGGER VIEW", "CONNECTING TO FIREBASE");
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         dataList = new ArrayList<>();
         adapter = new StaggerAdapter(dataList, getContext());
         recyclerView.setAdapter(adapter);
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                dataList.clear();
+                Log.d("STAGGER VIEW", "STAGGER VIEW IS FETCHING URLS");
                 for (DataSnapshot dataSnapshot: snapshot.getChildren()){
                     DataClass dataClass = dataSnapshot.getValue(DataClass.class);
                     dataList.add(dataClass);
                 }
+                Log.d("STAGGER VIEW", "STAGGER VIEW HAS FINISHED FETCHING URLS");
                 adapter.notifyDataSetChanged();
             }
             @Override

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,7 @@ public class RecyclerFragment extends Fragment {
 
     TabLayout tabLayout;
     ViewPager viewPager;
-    final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+    private DatabaseReference databaseReference;
 
     public RecyclerFragment() {
         // Required empty public constructor
@@ -41,6 +42,9 @@ public class RecyclerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recycler,container,false);
+        Log.d("RECYCLER VIEW", "CONNECTING TO FIREBASE");
+        databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+        Log.d("RECYCLER VIEW", "CONNECTING TO FIREBASE");
         recyclerView = view.findViewById(R.id.recyclerView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

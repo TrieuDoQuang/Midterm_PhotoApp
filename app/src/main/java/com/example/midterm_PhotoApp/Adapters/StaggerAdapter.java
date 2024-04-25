@@ -1,6 +1,7 @@
 package com.example.midterm_PhotoApp.Adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHo
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Glide.with(context).load(dataList.get(position).getImageURL()).into(holder.staggeredImages);
+        Log.d("STAGGER ADAPTER", "LOADING IMAGE NO." + position);
     }
     @Override
     public int getItemCount() {

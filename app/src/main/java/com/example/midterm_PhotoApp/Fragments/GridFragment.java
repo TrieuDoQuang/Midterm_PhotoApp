@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,25 +26,30 @@ public class GridFragment extends Fragment {
     private GridView gridView;
     private ArrayList<DataClass> dataList;
     private GridAdapter adapter;
-    final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+    private DatabaseReference databaseReference;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_grid,container,false);
-
+        Log.d("GRID VIEW", "CONNECTING TO FIREBASE");
+        databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+        Log.d("GRID VIEW", "CONNECTING TO FIREBASE");
         gridView = view.findViewById(R.id.gridView);
         dataList = new ArrayList<>();
         adapter = new GridAdapter(getContext(), dataList);
         gridView.setAdapter(adapter);
 
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                dataList.clear();
+                Log.d("GRID VIEW", "GRID VIEW IS FETCHING URLS");
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     DataClass dataClass = dataSnapshot.getValue(DataClass.class);
                     dataList.add(dataClass);
                 }
+                Log.d("GRID VIEW", "GRID VIEW HAS FINISHED FETCHING URLS");
                 adapter.notifyDataSetChanged();
             }
             @Override

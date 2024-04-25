@@ -1,6 +1,7 @@
 package com.example.midterm_PhotoApp.Adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Glide.with(context).load(dataList.get(position).getImageURL()).into(holder.recyclerImage);
+        Log.d("RECYCLER ADAPTER", "LOADING IMAGE NO." + position);
         holder.recyclerCaption.setText(dataList.get(position).getCaption());
     }
     @Override

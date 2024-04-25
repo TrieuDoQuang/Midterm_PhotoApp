@@ -1,6 +1,7 @@
 package com.example.midterm_PhotoApp.Adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,7 @@ public class GridAdapter extends BaseAdapter {
         ImageView gridImage = view.findViewById(R.id.gridImage);
         TextView gridCaption = view.findViewById(R.id.gridCaption);
         Glide.with(context).load(dataList.get(i).getImageURL()).into(gridImage);
+        Log.d("GRID ADAPTER", "LOADING IMAGE NO." + i);
         gridCaption.setText(dataList.get(i).getCaption());
         return view;
     }

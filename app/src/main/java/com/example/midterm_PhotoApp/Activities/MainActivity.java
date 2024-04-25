@@ -1,31 +1,55 @@
 package com.example.midterm_PhotoApp.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
 
 import com.example.midterm_PhotoApp.Adapters.TabAdapter;
+import com.example.midterm_PhotoApp.Models.DataClass;
 import com.example.midterm_PhotoApp.R;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    //FloatingActionButton fab;
-    //RecyclerView recyclerView;
-    //ArrayList<DataClass> dataList;
-    //MyAdapter adapter;
-
+    //private ArrayList<DataClass> dataList;
     TabLayout tabLayout;
     ViewPager2 viewPager;
-    //final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+    /*final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
+
+    public ArrayList<DataClass> getDataList() {
+        return dataList;
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*dataList = new ArrayList<>();
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
+                    DataClass dataClass = dataSnapshot.getValue(DataClass.class);
+                    dataList.add(dataClass);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });*/
 
         /*fab = findViewById(R.id.fab);
         recyclerView = findViewById(R.id.recyclerView);
