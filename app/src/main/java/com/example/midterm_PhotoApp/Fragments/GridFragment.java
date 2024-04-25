@@ -40,7 +40,7 @@ public class GridFragment extends Fragment {
         adapter = new GridAdapter(getContext(), dataList);
         gridView.setAdapter(adapter);
 
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dataList.clear();

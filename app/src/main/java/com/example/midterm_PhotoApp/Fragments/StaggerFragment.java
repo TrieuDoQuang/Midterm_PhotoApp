@@ -44,7 +44,7 @@ public class StaggerFragment extends Fragment {
         dataList = new ArrayList<>();
         adapter = new StaggerAdapter(dataList, getContext());
         recyclerView.setAdapter(adapter);
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dataList.clear();
