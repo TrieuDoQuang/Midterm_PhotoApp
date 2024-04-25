@@ -1,5 +1,7 @@
 package com.example.midterm_PhotoApp.Models;
 
+import com.google.firebase.storage.StorageReference;
+
 public class DataClass {
     private String imageURL, caption;
     public DataClass(){
@@ -13,6 +15,8 @@ public class DataClass {
     public String getCaption() {
         return caption;
     }
+
+
     public void setCaption(String caption) {
         this.caption = caption;
     }

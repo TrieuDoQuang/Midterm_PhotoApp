@@ -2,11 +2,14 @@ package com.example.midterm_PhotoApp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 
 import com.example.midterm_PhotoApp.Adapters.TabAdapter;
+import com.example.midterm_PhotoApp.Fragments.RecyclerFragment;
 import com.example.midterm_PhotoApp.Models.DataClass;
 import com.example.midterm_PhotoApp.R;
 import com.google.android.material.tabs.TabLayout;
@@ -34,55 +37,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /*dataList = new ArrayList<>();
-
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
-                    DataClass dataClass = dataSnapshot.getValue(DataClass.class);
-                    dataList.add(dataClass);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });*/
-
-        /*fab = findViewById(R.id.fab);
-        recyclerView = findViewById(R.id.recyclerView);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        dataList = new ArrayList<>();
-        adapter = new MyAdapter(this, dataList);
-        recyclerView.setAdapter(adapter);
-
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
-                    DataClass dataClass = dataSnapshot.getValue(DataClass.class);
-                    dataList.add(dataClass);
-                }
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, UploadActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });*/
 
         tabLayout=(TabLayout)findViewById(R.id.tabLayout);
         viewPager=(ViewPager2)findViewById(R.id.viewPager);
@@ -95,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
         final TabAdapter adapter = new TabAdapter(this);
         viewPager.setAdapter(adapter);
+
+
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -121,5 +77,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
     }
+//    private void loadImagesForTab(int position) {
+//        TabAdapter adapter = (TabAdapter) viewPager.getAdapter();
+//        if (adapter != null) {
+//            // Assuming you have a method in your adapter to get the fragment at a specific position
+//            Fragment fragment = adapter.createFragment(position);
+//            if (fragment instanceof RecyclerFragment){
+//                ImageView imageView = ((RecyclerFragment) fragment).onCreateView();
+//
+//            }
+//        }
+//    }
 }

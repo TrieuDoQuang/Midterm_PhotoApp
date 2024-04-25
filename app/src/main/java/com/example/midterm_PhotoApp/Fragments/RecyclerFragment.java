@@ -12,16 +12,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.example.midterm_PhotoApp.Adapters.RecyclerAdapter;
 import com.example.midterm_PhotoApp.Models.DataClass;
 import com.example.midterm_PhotoApp.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -29,7 +35,6 @@ public class RecyclerFragment extends Fragment {
     RecyclerView recyclerView;
     ArrayList<DataClass> dataList;
     RecyclerAdapter adapter;
-
     TabLayout tabLayout;
     ViewPager viewPager;
     private DatabaseReference databaseReference;
@@ -46,10 +51,11 @@ public class RecyclerFragment extends Fragment {
         databaseReference = FirebaseDatabase.getInstance().getReference("Images");
         Log.d("RECYCLER VIEW", "CONNECTING TO FIREBASE");
         recyclerView = view.findViewById(R.id.recyclerView);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dataList = new ArrayList<>();
         adapter = new RecyclerAdapter(getContext(), dataList);
+
+
         recyclerView.setAdapter(adapter);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -70,4 +76,5 @@ public class RecyclerFragment extends Fragment {
         });
         return view;
     }
+
 }
