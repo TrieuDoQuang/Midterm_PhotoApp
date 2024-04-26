@@ -99,6 +99,7 @@ public class UploadFragment extends Fragment {
                 photoPicker.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 photoPicker.setAction(Intent.ACTION_GET_CONTENT);
                 photoPicker.setType("image/*");
+                arrayImageUri.clear();
                 activityResultLauncher.launch(photoPicker);
             }
         });
