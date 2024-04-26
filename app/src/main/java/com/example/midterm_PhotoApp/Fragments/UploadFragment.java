@@ -167,7 +167,7 @@ public class UploadFragment extends Fragment {
                                 // Log the details
                                 Log.d("FirebaseData","user data uploaded successfully");
                                 // Make a toast
-                                Toast.makeText(getContext(), "user data uploaded successfully", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "caption, url uploaded successfully", Toast.LENGTH_LONG).show();
                                 uploadCaption.setText("");
                                 uploadImage.setImageDrawable(getResources().getDrawable(R.drawable.uploadicon));
                             }

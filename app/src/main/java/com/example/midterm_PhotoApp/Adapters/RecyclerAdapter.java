@@ -147,7 +147,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             Task<Void> deleteStorageTask = storageRef.delete();
 
             // Query the database for the record with the matching imageUrl
-            Query query = databaseRef.orderByChild("imageUrl").equalTo(imageUrl);
+            Query query = databaseRef.orderByChild("imageURL").equalTo(imageUrl);
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
