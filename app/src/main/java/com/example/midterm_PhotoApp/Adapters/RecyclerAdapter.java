@@ -52,6 +52,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     public int getItemCount() {
         return dataList.size();
     }
+
+    public Context getContext() {
+        return context;
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView recyclerImage;
         TextView recyclerCaption;
@@ -85,5 +90,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                 // Handle any errors
             }
         });
+    }
+
+    public void deleteRecycler(int position) {
+        if (position >= 0 && position < dataList.size()) {
+
+            dataList.remove(position);
+
+            notifyItemRemoved(position);
+        }
+    }
+
+    public void updateRecyclerTitle(int position) {
+        if (position >= 0 && position < dataList.size()) {
+            DataClass data = dataList.get(position);
+            data.setTitle("Updated Title");
+            notifyItemChanged(position);
+        }
     }
 }

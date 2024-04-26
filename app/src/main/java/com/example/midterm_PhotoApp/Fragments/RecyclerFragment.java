@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import com.example.midterm_PhotoApp.Adapters.RecyclerAdapter;
 import com.example.midterm_PhotoApp.Models.DataClass;
 import com.example.midterm_PhotoApp.R;
+import com.example.midterm_PhotoApp.Utils.RecyclerViewTouchHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
@@ -55,6 +57,12 @@ public class RecyclerFragment extends Fragment {
         dataList = new ArrayList<>();
         adapter = new RecyclerAdapter(getContext(), dataList);
 
+
+
+        recyclerView.setAdapter(adapter);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerViewTouchHelper(adapter));
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         recyclerView.setAdapter(adapter);
 

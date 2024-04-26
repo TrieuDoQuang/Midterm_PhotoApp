@@ -25,7 +25,6 @@ import java.util.HashSet;
 public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHolder> {
     ArrayList<DataClass> dataList;
     Context context;
-
     private double totalSize = 0;
 
     private HashSet<String> processedUrls = new HashSet<>();
@@ -80,8 +79,15 @@ public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHo
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
+
             }
         });
     }
+    public Context getContext(){
+        return context;
+    }
+
+
+
+
 }
