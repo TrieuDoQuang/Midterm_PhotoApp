@@ -10,11 +10,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.midterm_PhotoApp.Models.DataClass;
 import com.example.midterm_PhotoApp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -48,6 +55,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
 
+    private DatabaseReference databaseReference;
+
+
     public RecyclerAdapter(Context context, ArrayList<DataClass> dataList) {
         this.context = context;
         this.dataList = dataList;
@@ -65,6 +75,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         // Load the image for this position
         String imageUrl = dataList.get(position).getImageURL();
         Glide.with(context).load(imageUrl).into(holder.recyclerImage);
+
         Log.d("RECYCLER ADAPTER", "LOADING IMAGE NO." + position);
         Log.d("RECYCLER ADAPTER", "LOADING IMAGE URL " + imageUrl);
 
@@ -128,17 +139,37 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             // Remove the item from the list
             dataList.remove(position);
 
-            // Delete the image from Firebase Storage
-            StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
-            storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            // Get references to Firebase Storage and Realtime Database
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("Images");
+
+            StorageReference storageRef = storage.getReferenceFromUrl(imageUrl);
+            Task<Void> deleteStorageTask = storageRef.delete();
+
+            // Query the database for the record with the matching imageUrl
+            Query query = databaseRef.orderByChild("imageUrl").equalTo(imageUrl);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        // Delete the specific record
+                        snapshot.getRef().removeValue();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("RecyclerAdapter", "Error querying data in Firebase Realtime Database", databaseError.toException());
+                }
+            });
+
+            // Wait for both tasks to complete
+            Task<Void> combinedTask = Tasks.whenAll(deleteStorageTask);
+            combinedTask.addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    // File deleted successfully
-                    Log.d("RecyclerAdapter", "Image deleted successfully from Firebase Storage");
-
-                    // Remove the imageUrl from processedUrls after successful deletion
-                    processedUrls.remove(imageUrl);
-                    Log.d("RecyclerAdapter", "Image URL removed from processedUrls: " + imageUrl);
+                    // Both tasks completed successfully
+                    Log.d("RecyclerAdapter", "Image and data deleted successfully from Firebase");
 
                     // Clear the cache if the image is stored locally
                     clearCacheForImageUrl(imageUrl);
@@ -153,11 +184,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     // An error occurred!
-                    Log.e("RecyclerAdapter", "Error deleting image from Firebase Storage", exception);
+                    Log.e("RecyclerAdapter", "Error deleting image and data from Firebase", exception);
                 }
             });
         }
     }
+
+
+
 
     private void clearCacheForImageUrl(String imageUrl) {
         // Determine the cache directory where the image might be stored
