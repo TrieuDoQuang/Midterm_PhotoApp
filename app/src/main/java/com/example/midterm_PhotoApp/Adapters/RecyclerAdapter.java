@@ -169,7 +169,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         });
     }
 
-
     private void fetchNextBatch(){
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(new Runnable() {
@@ -182,7 +181,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             }
         });
     }
-
 
     private int getNextImageIndex() {
         // Find the index of the next image URL that hasn't been processed yet

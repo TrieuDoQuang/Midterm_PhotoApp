@@ -1,6 +1,8 @@
 package com.example.midterm_PhotoApp.Adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
@@ -89,6 +91,11 @@ public class GridAdapter extends BaseAdapter {
             fetchNextBatch();
         }
 
+        gridImage.setOnLongClickListener(v -> {
+            showDeleteConfirmationDialog(imageUrl);
+            return true;
+        });
+
         return view;
     }
     private void sendBroadcast(List<String> imageUrls) {
@@ -121,6 +128,46 @@ public class GridAdapter extends BaseAdapter {
                 // Handle any errors
             }
         });
+    }
+
+    private void showDeleteConfirmationDialog(String imageUrl) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("Are you sure you want to delete this image?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteImageFromStorage(imageUrl);
+            }
+        });
+        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void deleteImageFromStorage(String imageUrl) {
+        StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
+        imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("GRID ADAPTER", "Image deleted successfully.");
+                removeImageFromDataList(imageUrl);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.d("GRID ADAPTER", "Failed to delete image.", exception);
+            }
+        });
+    }
+
+    private void removeImageFromDataList(String imageUrl) {
+        for (int i = 0; i < dataList.size(); i++) {
+            if (dataList.get(i).getImageURL().equals(imageUrl)) {
+                dataList.remove(i);
+                break;
+            }
+        }
+        notifyDataSetChanged(); // Refresh the grid view
     }
 
     private int getNextImageIndex() {

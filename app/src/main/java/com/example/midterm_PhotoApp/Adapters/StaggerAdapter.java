@@ -1,5 +1,6 @@
 package com.example.midterm_PhotoApp.Adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -66,6 +67,11 @@ public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHo
         if (position == dataList.size() - 1 && position % BATCH_SIZE == 0) {
             fetchNextBatch();
         }
+
+        holder.staggeredImages.setOnLongClickListener(v -> {
+            showDeleteConfirmationDialog(imageUrl, position);
+            return true;
+        });
     }
 
     private void sendBroadcast(List<String> imageUrls) {
@@ -114,7 +120,29 @@ public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHo
         return context;
     }
 
+    private void showDeleteConfirmationDialog(String imageUrl, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Delete Image");
+        builder.setMessage("Are you sure you want to delete this image?");
+        builder.setPositiveButton("Yes", (dialog, which) -> deleteImageFromStorage(imageUrl, position));
+        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
+    private void deleteImageFromStorage(String imageUrl, int position) {
+        StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
+        imageRef.delete().addOnSuccessListener(aVoid -> {
+            Log.d("STAGGER ADAPTER", "Image deleted successfully.");
+            removeImageFromDataList(position);
+        }).addOnFailureListener(e -> Log.e("STAGGER ADAPTER", "Failed to delete image.", e));
+    }
+
+    private void removeImageFromDataList(int position) {
+        dataList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, dataList.size());
+    }
 
     private int getNextImageIndex() {
         // Find the index of the next image URL that hasn't been processed yet
