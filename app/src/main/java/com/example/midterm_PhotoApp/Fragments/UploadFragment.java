@@ -1,6 +1,7 @@
 package com.example.midterm_PhotoApp.Fragments;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -36,13 +37,16 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.ArrayList;
+
 public class UploadFragment extends Fragment {
 
     private FloatingActionButton uploadButton;
     private ImageView uploadImage;
     EditText uploadCaption;
     ProgressBar progressBar;
-    private Uri imageUri;
+    private ArrayList<Uri> arrayImageUri;
+    int position;
     final private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Images");
     final private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     
@@ -56,15 +60,31 @@ public class UploadFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
+        arrayImageUri = new ArrayList<Uri>();
+
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
+                        if (result.getResultCode() == Activity.RESULT_OK && null != result.getData()) {
+                            if (result.getData().getClipData() != null){
+                                ClipData mClipData = result.getData().getClipData();
+                                int cout = mClipData.getItemCount();
+                                for (int i = 0; i < cout; i++) {
+                                    // adding imageuri in array
+                                    Uri imageurl = mClipData.getItemAt(i).getUri();
+                                    arrayImageUri.add(imageurl);
+                                }
+                                position = 0;
+                                uploadImage.setImageURI(arrayImageUri.get(position));
+                            }
+                            else {
                             Intent data = result.getData();
-                            imageUri = data.getData();
-                            uploadImage.setImageURI(imageUri);
+                            arrayImageUri.add(data.getData());
+                            position = 0;
+                            uploadImage.setImageURI(arrayImageUri.get(position));
+                        }
                         } else {
                             Toast.makeText(getContext(), "No Image Selected", Toast.LENGTH_SHORT).show();
                         }
@@ -76,6 +96,7 @@ public class UploadFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent photoPicker = new Intent();
+                photoPicker.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 photoPicker.setAction(Intent.ACTION_GET_CONTENT);
                 photoPicker.setType("image/*");
                 activityResultLauncher.launch(photoPicker);
@@ -85,8 +106,10 @@ public class UploadFragment extends Fragment {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(imageUri != null) {
-                    uploadToFirebase(imageUri);
+                if(arrayImageUri.size()> 0) {
+                    for(int i = 0; i < arrayImageUri.size(); i++){
+                        uploadToFirebase(arrayImageUri.get(i));
+                    }
                 } else {
                     Toast.makeText(getContext(), "Please select image", Toast.LENGTH_SHORT).show();
                 }
