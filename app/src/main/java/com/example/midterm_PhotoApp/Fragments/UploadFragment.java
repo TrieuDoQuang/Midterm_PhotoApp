@@ -41,7 +41,7 @@ import java.util.ArrayList;
 
 public class UploadFragment extends Fragment {
 
-    private FloatingActionButton uploadButton;
+    private FloatingActionButton uploadButton, previousButton, forwardButton;
     private ImageView uploadImage;
     EditText uploadCaption;
     ProgressBar progressBar;
@@ -55,6 +55,8 @@ public class UploadFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_upload,container,false);
         uploadButton = view.findViewById(R.id.uploadButton);
+        previousButton = view.findViewById(R.id.previousButton);
+        forwardButton = view.findViewById(R.id.forwardButton);
         uploadCaption = view.findViewById(R.id.uploadCaption);
         uploadImage = view.findViewById(R.id.uploadImage);
         progressBar = view.findViewById(R.id.progressBar);
@@ -78,12 +80,10 @@ public class UploadFragment extends Fragment {
                                 }
                                 position = 0;
                                 uploadImage.setImageURI(arrayImageUri.get(position));
-                            }
-                            else {
-                            Intent data = result.getData();
-                            arrayImageUri.add(data.getData());
-                            position = 0;
-                            uploadImage.setImageURI(arrayImageUri.get(position));
+                                forwardButton.setVisibility(View.VISIBLE);
+                                forwardButton.setEnabled(true);
+                                previousButton.setVisibility(View.VISIBLE);
+                                previousButton.setEnabled(true);
                         }
                         } else {
                             Toast.makeText(getContext(), "No Image Selected", Toast.LENGTH_SHORT).show();
@@ -111,14 +111,41 @@ public class UploadFragment extends Fragment {
                     for(int i = 0; i < arrayImageUri.size(); i++){
                         uploadToFirebase(arrayImageUri.get(i));
                     }
+                    forwardButton.setVisibility(View.INVISIBLE);
+                    forwardButton.setEnabled(false);
+                    previousButton.setVisibility(View.INVISIBLE);
+                    previousButton.setEnabled(false);
                 } else {
                     Toast.makeText(getContext(), "Please select image", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position == 0)
+                    position = arrayImageUri.size() - 1;
+                else
+                    position--;
+                uploadImage.setImageURI(arrayImageUri.get(position));
+            }
+        });
+
+        forwardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position == arrayImageUri.size() - 1)
+                    position = 0;
+                else
+                    position++;
+                uploadImage.setImageURI(arrayImageUri.get(position));
+            }
+        });
+
         return view;
     }
+
 
     private void uploadToFirebase(Uri uri) {
         String caption = uploadCaption.getText().toString();
