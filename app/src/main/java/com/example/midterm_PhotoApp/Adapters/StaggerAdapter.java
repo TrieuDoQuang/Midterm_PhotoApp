@@ -116,9 +116,6 @@ public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHo
 
 
 
-
-
-
     private int getNextImageIndex() {
         // Find the index of the next image URL that hasn't been processed yet
         for (int i = startIndex; i < dataList.size(); i++) {
@@ -174,67 +171,6 @@ public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHo
                 }
             }
         });
-    }
-
-
-    private int getNextImageIndex() {
-        // Find the index of the next image URL that hasn't been processed yet
-        for (int i = startIndex; i < dataList.size(); i++) {
-            String imageUrl = dataList.get(i).getImageURL();
-            if (!processedUrls.contains(imageUrl)) {
-                // Update startIndex to the next unprocessed image index
-                startIndex = i + 1;
-                return i;
-            }
-        }
-        // If we reach the end of the data list, reset the startIndex and try again
-        startIndex = 0;
-        return getNextImageIndex();
-    }
-
-    private void fetchNextBatch(){
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                // Find the index of the next image URL that hasn't been processed yet
-                int nextImageIndex = getNextImageIndex();
-                // Fetch the next batch starting from the next image URL
-                fetchImageUrls(nextImageIndex);
-            }
-        });
-    }
-
-    private void fetchImageUrls(int startIndex) {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Images");
-        storageRef.listAll().addOnCompleteListener(new OnCompleteListener<ListResult>() {
-            @Override
-            public void onComplete(@NonNull Task<ListResult> task) {
-                if (task.isSuccessful()) {
-                    List<String> imageUrls = new ArrayList<>();
-                    List<StorageReference> items = task.getResult().getItems();
-                    int endIndex = Math.min(startIndex + BATCH_SIZE, items.size());
-                    for (int i = startIndex; i < endIndex; i++) {
-                        StorageReference item = items.get(i);
-                        item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Uri> uriTask) {
-                                if (uriTask.isSuccessful()) {
-                                    Uri uri = uriTask.getResult();
-                                    imageUrls.add(uri.toString());
-                                    if (imageUrls.size() == BATCH_SIZE) {
-                                        sendBroadcast(imageUrls);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        });
-    }
-    public Context getContext(){
-        return context;
     }
 
 
