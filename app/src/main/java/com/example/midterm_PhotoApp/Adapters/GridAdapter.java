@@ -1,6 +1,8 @@
 package com.example.midterm_PhotoApp.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,13 +12,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
 import com.example.midterm_PhotoApp.Models.DataClass;
 import com.example.midterm_PhotoApp.R;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
@@ -25,11 +31,18 @@ import java.util.HashSet;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class GridAdapter extends BaseAdapter {
     private ArrayList<DataClass> dataList;
     private Context context;
     LayoutInflater layoutInflater;
+    private static final int BATCH_SIZE = 20;
+    private int startIndex = 0;
+
+
     private double totalSize = 0;
 
     private HashSet<String> processedUrls = new HashSet<>();
@@ -54,28 +67,36 @@ public class GridAdapter extends BaseAdapter {
     }
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        long start = System.currentTimeMillis();
         if (layoutInflater == null){
             layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
         if (view == null){
             view = layoutInflater.inflate(R.layout.grid_item, null);
         }
+
         ImageView gridImage = view.findViewById(R.id.gridImage);
         TextView gridCaption = view.findViewById(R.id.gridCaption);
-        Glide.with(context).load(dataList.get(i).getImageURL()).into(gridImage);
+
+        // Load the image for this position
+        String imageUrl = dataList.get(i).getImageURL();
+        Glide.with(context).load(imageUrl).into(gridImage);
         Log.d("GRID ADAPTER", "LOADING IMAGE NO." + i);
-        getImageSize(dataList.get(i).getImageURL());
-
-
 
         gridCaption.setText(dataList.get(i).getCaption());
-        long end = System.currentTimeMillis();
-        Log.d("GRID ADAPTER", "TIME " + (end-start) + " Millisecond");
+
+        // Check if it's time to fetch the next batch of images
+        if (i == dataList.size() - 1 && i % BATCH_SIZE == 0) {
+            fetchNextBatch();
+        }
 
         return view;
-
     }
+    private void sendBroadcast(List<String> imageUrls) {
+        Intent broadcastIntent = new Intent("IMAGE_FETCH_COMPLETE");
+        broadcastIntent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
+        LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
+    }
+
 
     private void getImageSize(String imageUrl) {
         if (processedUrls.contains(imageUrl)) {
@@ -101,6 +122,65 @@ public class GridAdapter extends BaseAdapter {
             }
         });
     }
+
+    private int getNextImageIndex() {
+        // Find the index of the next image URL that hasn't been processed yet
+        for (int i = startIndex; i < dataList.size(); i++) {
+            String imageUrl = dataList.get(i).getImageURL();
+            if (!processedUrls.contains(imageUrl)) {
+                // Update startIndex to the next unprocessed image index
+                startIndex = i + 1;
+                return i;
+            }
+        }
+        // If we reach the end of the data list, reset the startIndex and try again
+        startIndex = 0;
+        return getNextImageIndex();
+    }
+
+    private void fetchNextBatch(){
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                // Find the index of the next image URL that hasn't been processed yet
+                int nextImageIndex = getNextImageIndex();
+                // Fetch the next batch starting from the next image URL
+                fetchImageUrls(nextImageIndex);
+            }
+        });
+    }
+
+    private void fetchImageUrls(int startIndex) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Images");
+        storageRef.listAll().addOnCompleteListener(new OnCompleteListener<ListResult>() {
+            @Override
+            public void onComplete(@NonNull Task<ListResult> task) {
+                if (task.isSuccessful()) {
+                    List<String> imageUrls = new ArrayList<>();
+                    List<StorageReference> items = task.getResult().getItems();
+                    int endIndex = Math.min(startIndex + BATCH_SIZE, items.size());
+                    for (int i = startIndex; i < endIndex; i++) {
+                        StorageReference item = items.get(i);
+                        item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> uriTask) {
+                                if (uriTask.isSuccessful()) {
+                                    Uri uri = uriTask.getResult();
+                                    imageUrls.add(uri.toString());
+                                    if (imageUrls.size() == BATCH_SIZE) {
+                                        sendBroadcast(imageUrls);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+
 
 
 }

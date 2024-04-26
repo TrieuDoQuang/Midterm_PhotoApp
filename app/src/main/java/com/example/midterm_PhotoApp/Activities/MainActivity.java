@@ -79,15 +79,5 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-//    private void loadImagesForTab(int position) {
-//        TabAdapter adapter = (TabAdapter) viewPager.getAdapter();
-//        if (adapter != null) {
-//            // Assuming you have a method in your adapter to get the fragment at a specific position
-//            Fragment fragment = adapter.createFragment(position);
-//            if (fragment instanceof RecyclerFragment){
-//                ImageView imageView = ((RecyclerFragment) fragment).onCreateView();
-//
-//            }
-//        }
-//    }
+
 }
