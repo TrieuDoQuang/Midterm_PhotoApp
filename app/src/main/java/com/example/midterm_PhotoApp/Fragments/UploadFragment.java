@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,10 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class UploadFragment extends Fragment {
@@ -108,9 +113,27 @@ public class UploadFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if(arrayImageUri.size()> 0) {
+                    Log.d("UPLOADING IMG", "START UPLOADING");
+                    double fileSizeMbs = 0;
                     for(int i = 0; i < arrayImageUri.size(); i++){
-                        uploadToFirebase(arrayImageUri.get(i));
+                        InputStream fileInputStream= null;
+                        try {
+                            fileInputStream = getContext().getContentResolver().openInputStream(arrayImageUri.get(i));
+                            fileSizeMbs = fileInputStream.available();
+                            fileSizeMbs = fileSizeMbs / (1024 * 1024);
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        /*File file = new File(arrayImageUri.get(i).getPath());
+                        double fileSizeInMBs = (double) file.length() / (1024 * 1024);
+                        String calString=Double.toString(fileSizeInMBs);*/
+                        long start = System.currentTimeMillis();
+                        uploadToFirebase(arrayImageUri.get(i), fileSizeMbs, start);
                     }
+                    Log.d("UPLOADING IMG", "FINISHED UPLOADING");
                     forwardButton.setVisibility(View.INVISIBLE);
                     forwardButton.setEnabled(false);
                     previousButton.setVisibility(View.INVISIBLE);
@@ -147,7 +170,7 @@ public class UploadFragment extends Fragment {
     }
 
 
-    private void uploadToFirebase(Uri uri) {
+    private void uploadToFirebase(Uri uri, Double size, long start) {
         String caption = uploadCaption.getText().toString();
         final StorageReference imageReference = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(uri));
 
@@ -163,7 +186,7 @@ public class UploadFragment extends Fragment {
                             @Override
                             public void onSuccess(Void aVoid){
                                 // SUCCESS
-
+                                Log.d("UPLOADING IMG UPDATE", "FINISHED UPLOADING IMG SIZE " + size + "Mbs total time " + (System.currentTimeMillis() - start));
                                 // Log the details
                                 Log.d("FirebaseData","user data uploaded successfully");
                                 // Make a toast
