@@ -23,6 +23,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageMetadata;
@@ -136,7 +142,7 @@ public class GridAdapter extends BaseAdapter {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                deleteImageFromStorage(imageUrl);
+                deleteImageFromStorageAndRealTime(imageUrl);
             }
         });
         builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
@@ -144,18 +150,41 @@ public class GridAdapter extends BaseAdapter {
         dialog.show();
     }
 
-    private void deleteImageFromStorage(String imageUrl) {
+    private void deleteImageFromStorageAndRealTime(String imageUrl) {
+        // Get references to Firebase Storage and Realtime Database
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("Images");
+
+        // Delete image from storage
         StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
         imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                // Image deleted successfully
                 Log.d("GRID ADAPTER", "Image deleted successfully.");
-                removeImageFromDataList(imageUrl);
+
+                // Query the database for the record with the matching imageUrl
+                Query query = databaseRef.orderByChild("imageURL").equalTo(imageUrl);
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            // Delete the specific record
+                            snapshot.getRef().removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.e("GRID ADAPTER", "Error querying data in Firebase Realtime Database", databaseError.toException());
+                    }
+                });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Log.d("GRID ADAPTER", "Failed to delete image.", exception);
+                // An error occurred!
+                Log.e("GRID ADAPTER", "Error deleting image from Firebase Storage", exception);
             }
         });
     }
