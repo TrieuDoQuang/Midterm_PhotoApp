@@ -20,6 +20,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageMetadata;
@@ -124,19 +130,54 @@ public class StaggerAdapter extends RecyclerView.Adapter<StaggerAdapter.MyViewHo
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Delete Image");
         builder.setMessage("Are you sure you want to delete this image?");
-        builder.setPositiveButton("Yes", (dialog, which) -> deleteImageFromStorage(imageUrl, position));
+        builder.setPositiveButton("Yes", (dialog, which) -> deleteImageFromStorageAndDatabase(imageUrl, position));
         builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-    private void deleteImageFromStorage(String imageUrl, int position) {
+    private void deleteImageFromStorageAndDatabase(String imageUrl, int position) {
+        // Get references to Firebase Storage and Realtime Database
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("Images");
+
+        // Delete image from storage
         StorageReference imageRef = storage.getReferenceFromUrl(imageUrl);
-        imageRef.delete().addOnSuccessListener(aVoid -> {
-            Log.d("STAGGER ADAPTER", "Image deleted successfully.");
-            removeImageFromDataList(position);
-        }).addOnFailureListener(e -> Log.e("STAGGER ADAPTER", "Failed to delete image.", e));
+        imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Image deleted successfully
+                Log.d("STAGGER ADAPTER", "Image deleted successfully.");
+
+                // Remove the image data from the adapter's list
+                removeImageFromDataList(position);
+
+                // Query the database for the record with the matching imageUrl
+                Query query = databaseRef.orderByChild("imageURL").equalTo(imageUrl);
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            // Delete the specific record
+                            snapshot.getRef().removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.e("STAGGER ADAPTER", "Error querying data in Firebase Realtime Database", databaseError.toException());
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // An error occurred!
+                Log.e("STAGGER ADAPTER", "Error deleting image from Firebase Storage", exception);
+            }
+        });
     }
+
 
     private void removeImageFromDataList(int position) {
         dataList.remove(position);
