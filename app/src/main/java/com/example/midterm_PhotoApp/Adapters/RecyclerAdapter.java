@@ -22,6 +22,7 @@ import com.google.firebase.storage.ListResult;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -65,6 +66,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         String imageUrl = dataList.get(position).getImageURL();
         Glide.with(context).load(imageUrl).into(holder.recyclerImage);
         Log.d("RECYCLER ADAPTER", "LOADING IMAGE NO." + position);
+        Log.d("RECYCLER ADAPTER", "LOADING IMAGE URL " + imageUrl);
+
         holder.recyclerImage.setVisibility(View.VISIBLE); // Make the ImageView visible
 
         // Check if it's time to fetch the next batch of images
@@ -119,10 +122,58 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
     public void deleteRecycler(int position) {
         if (position >= 0 && position < dataList.size()) {
+            DataClass data = dataList.get(position);
+            String imageUrl = data.getImageURL();
 
+            // Remove the item from the list
             dataList.remove(position);
 
-            notifyItemRemoved(position);
+            // Delete the image from Firebase Storage
+            StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+            storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // File deleted successfully
+                    Log.d("RecyclerAdapter", "Image deleted successfully from Firebase Storage");
+
+                    // Remove the imageUrl from processedUrls after successful deletion
+                    processedUrls.remove(imageUrl);
+                    Log.d("RecyclerAdapter", "Image URL removed from processedUrls: " + imageUrl);
+
+                    // Clear the cache if the image is stored locally
+                    clearCacheForImageUrl(imageUrl);
+
+                    // Notify the adapter about the item removal
+                    notifyItemRemoved(position);
+
+                    // Notify the adapter data set has changed
+                    notifyDataSetChanged();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // An error occurred!
+                    Log.e("RecyclerAdapter", "Error deleting image from Firebase Storage", exception);
+                }
+            });
+        }
+    }
+
+    private void clearCacheForImageUrl(String imageUrl) {
+        // Determine the cache directory where the image might be stored
+        File cacheDir = context.getCacheDir();
+
+        // Construct the file path of the cached image based on the imageUrl
+        String fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+        File cachedImageFile = new File(cacheDir, fileName);
+
+        // Check if the cached image file exists and delete it
+        if (cachedImageFile.exists()) {
+            if (cachedImageFile.delete()) {
+                Log.d("RecyclerAdapter", "Cached image deleted successfully: " + cachedImageFile.getAbsolutePath());
+            } else {
+                Log.e("RecyclerAdapter", "Failed to delete cached image: " + cachedImageFile.getAbsolutePath());
+            }
         }
     }
 
